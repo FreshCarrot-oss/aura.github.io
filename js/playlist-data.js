@@ -1,0 +1,40 @@
+// Авто-сгенерировано generate_playlist.py — не редактируй вручную
+// Запусти generate_playlist.py снова после добавления треков
+window.PF_PLAYLIST = [
+  {
+    "file": "fc_№1.mp3",
+    "title": "Fc №1"
+  },
+  {
+    "file": "fc_№2.mp3",
+    "title": "Fc №2"
+  },
+  {
+    "file": "fc_№3.mp3",
+    "title": "Fc №3"
+  },
+  {
+    "file": "fc_№4.mp3",
+    "title": "Fc №4"
+  },
+  {
+    "file": "fc_№5.mp3",
+    "title": "Fc №5"
+  },
+  {
+    "file": "fc_№6.mp3",
+    "title": "Fc №6"
+  },
+  {
+    "file": "fc_№7.mp3",
+    "title": "Fc №7"
+  },
+  {
+    "file": "fc_№8.mp3",
+    "title": "Fc №8"
+  },
+  {
+    "file": "fc_№9.mp3",
+    "title": "Fc №9"
+  }
+];

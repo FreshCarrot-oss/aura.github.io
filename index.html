@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixelFocus — Study Space</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="display"></canvas>
+<div id="scanlines"></div>
+<div id="vignette"></div>
+
+<!-- Экран фокуса (поверх всего, кнопка выхода) -->
+<div id="focus-exit" class="hidden">
+  <button id="exit-focus-btn">✕ ВЫЙТИ ИЗ ФОКУСА</button>
+</div>
+
+<!-- Кнопка входа в фокус -->
+<button id="focus-btn" title="Режим фокуса">👁</button>
+
+<!-- Выбор сцены (левая колонка) -->
+<div id="scene-bar">
+  <button class="scene-btn active" data-scene="rain"    title="Дождливый город">🌧</button>
+  <button class="scene-btn"        data-scene="snow"    title="Снежная ночь">❄️</button>
+  <button class="scene-btn"        data-scene="sunny"   title="Золотой закат">🌅</button>
+  <button class="scene-btn"        data-scene="thunder" title="Гроза">⛈</button>
+  <button class="scene-btn"        data-scene="night"   title="Звёздная ночь">🌙</button>
+  <button class="scene-btn"        data-scene="sakura"  title="Цветение сакуры">🌸</button>
+</div>
+
+<!-- Виджет часов (центр вверху) -->
+<div id="clock-widget">
+  <div id="clock">00:00:00</div>
+  <div id="date-str">ПН 1 ЯНВ 2025</div>
+  <div id="quote-line">загрузка...</div>
+</div>
+
+<!-- ПАНЕЛЬ: Таймер -->
+<div class="panel" id="panel-timer">
+  <div class="panel-hdr" id="drag-timer">
+    <div class="panel-hdr-left"><span class="panel-ico">⏱</span><span class="panel-ttl">ТАЙМЕР</span></div>
+    <div class="panel-hdr-right">
+      <button class="p-min-btn" data-panel="panel-timer" title="Свернуть">—</button>
+    </div>
+  </div>
+  <div class="panel-body" id="body-timer">
+    <div id="timer-mode-lbl">ФОКУС</div>
+    <div id="timer-display">25:00</div>
+    <div id="timer-progress"><div id="timer-bar"></div></div>
+    <div class="t-row">
+      <button class="tbtn active" data-min="25">25м</button>
+      <button class="tbtn" data-min="50">50м</button>
+      <button class="tbtn" data-min="90">90м</button>
+      <button class="tbtn" data-min="0">✏</button>
+    </div>
+    <div class="t-row">
+      <button class="tbtn" id="btn-start">▶ СТАРТ</button>
+      <button class="tbtn" id="btn-reset">↺</button>
+      <button class="tbtn" id="btn-stats">📊</button>
+    </div>
+    <div id="pom-row">
+      <span id="pom-count">🍅 ×0</span>
+      <span id="focus-total">0м фокуса</span>
+    </div>
+  </div>
+</div>
+
+<!-- ПАНЕЛЬ: Задачи -->
+<div class="panel" id="panel-tasks">
+  <div class="panel-hdr" id="drag-tasks">
+    <div class="panel-hdr-left"><span class="panel-ico">📋</span><span class="panel-ttl">ЗАДАЧИ</span></div>
+    <div class="panel-hdr-right">
+      <button class="t-add-btn" id="task-add-btn" title="Добавить задачу">＋</button>
+      <button class="p-min-btn" data-panel="panel-tasks" title="Свернуть">—</button>
+    </div>
+  </div>
+  <div class="panel-body" id="body-tasks">
+    <div id="task-input-row">
+      <input id="task-input" type="text" placeholder="новая задача...">
+      <button class="tbtn" id="task-ok">OK</button>
+    </div>
+    <div id="task-list"></div>
+    <div id="task-empty">нет задач — добавь ＋</div>
+  </div>
+</div>
+
+<!-- ПАНЕЛЬ: Плеер -->
+<div class="panel" id="panel-player">
+  <div class="panel-hdr" id="drag-player">
+    <div class="panel-hdr-left"><span class="panel-ico">♫</span><span class="panel-ttl">ПЛЕЕР</span></div>
+    <div class="panel-hdr-right">
+      <button class="p-min-btn" data-panel="panel-player" title="Свернуть">—</button>
+    </div>
+  </div>
+  <div class="panel-body" id="body-player">
+    <div id="track-art-wrap"><div id="track-art">♪</div></div>
+    <div id="track-info">
+      <div id="track-title" class="marquee-wrap"><span id="track-title-txt">нет треков</span></div>
+      <div id="track-sub">добавь mp3 в audio/music/</div>
+    </div>
+    <div id="player-prog-wrap">
+      <div id="player-progress" id="player-prog-bar"><div id="player-bar"></div></div>
+      <div id="player-times">
+        <span id="t-cur">0:00</span>
+        <span id="t-tot">0:00</span>
+      </div>
+    </div>
+    <div id="player-controls">
+      <button class="p-ctrl" id="btn-shuffle" title="Перемешать">⇌</button>
+      <button class="p-ctrl" id="btn-prev" title="Пред.">⏮</button>
+      <button class="p-ctrl large" id="btn-play-pause" title="Пауза">▶</button>
+      <button class="p-ctrl" id="btn-next" title="След.">⏭</button>
+      <button class="p-ctrl" id="btn-loop" title="Повтор">↺</button>
+    </div>
+    <div class="vol-row">
+      <span class="vlbl">♪</span>
+      <input type="range" id="music-vol" min="0" max="100" value="60">
+      <span id="music-vol-val">60</span>
+    </div>
+  </div>
+</div>
+
+<!-- ПАНЕЛЬ: Атмосфера -->
+<div class="panel" id="panel-ambient">
+  <div class="panel-hdr" id="drag-ambient">
+    <div class="panel-hdr-left"><span class="panel-ico">◈</span><span class="panel-ttl">АТМОСФЕРА</span></div>
+    <div class="panel-hdr-right">
+      <button class="p-min-btn" data-panel="panel-ambient" title="Свернуть">—</button>
+    </div>
+  </div>
+  <div class="panel-body" id="body-ambient">
+    <div class="amb-grid">
+      <button class="amb-btn" data-amb="rain"          title="Дождь">🌧<span>дождь</span></button>
+      <button class="amb-btn" data-amb="fire"          title="Камин">🔥<span>камин</span></button>
+      <button class="amb-btn" data-amb="wind"          title="Ветер">💨<span>ветер</span></button>
+      <button class="amb-btn" data-amb="cafe"          title="Кафе">☕<span>кафе</span></button>
+      <button class="amb-btn" data-amb="typing"        title="Клавиатура">⌨<span>клавиш</span></button>
+      <button class="amb-btn" data-amb="thunder"       title="Гром фоновый (петля)">🌩<span>гром фон</span></button>
+    </div>
+    <div class="vol-row">
+      <span class="vlbl">◈</span>
+      <input type="range" id="amb-vol" min="0" max="100" value="55">
+      <span id="amb-vol-val">55</span>
+    </div>
+  </div>
+</div>
+
+<!-- Уведомление -->
+<div id="notif"></div>
+
+<!-- Модал статистики -->
+<div id="stats-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title">📊 СТАТИСТИКА</div>
+    <div class="stat-row"><span>ТОМАТОВ</span><span id="s-pom">0</span></div>
+    <div class="stat-row"><span>МИНУТ ФОКУСА</span><span id="s-min">0</span></div>
+    <div class="stat-row"><span>ЗАДАЧИ</span><span id="s-tasks">0/0</span></div>
+    <div class="stat-row"><span>СЦЕНА</span><span id="s-scene">—</span></div>
+    <button class="tbtn full" id="close-stats">✕ ЗАКРЫТЬ</button>
+  </div>
+</div>
+
+<!-- Telegram author hint (появляется каждые 5 мин, 10 сек) -->
+<div id="tg-hint">
+  <a id="tg-link" href="https://t.me/freshcarrot1" target="_blank" rel="noopener">
+    <span id="tg-hint-ico">✈</span>
+    <span id="tg-hint-txt">@freshcarrot1</span>
+  </a>
+</div>
+
+<script src="js/canvas.js"></script>
+<script src="js/audio.js"></script>
+<script>window.PF_PLAYLIST = [];</script>
+<script src="js/playlist-data.js" onerror="console.warn('playlist-data.js не найден, запусти generate_playlist.py')"></script>
+<script src="js/player.js"></script>
+<script src="js/timer.js"></script>
+<script src="js/tasks.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
